@@ -21306,32 +21306,32 @@
 	      var pics = void 0;
 	      var posts = [];
 	      var that = this;
-	      $.get("http://localhost:4567/news", function (news) {
+	      $.get("http://sunshinenights.com/news", function (news) {
 	        news.forEach(function (post) {
 	          posts.push(post);
 	        });
 	        console.log("news");
-	        $.get("http://localhost:4567/shows", function (shows) {
+	        $.get("http://sunshinenights.com/shows", function (shows) {
 	          shows.forEach(function (post) {
 	            posts.push(post);
 	          });
 	          console.log("shows");
-	          $.get("http://localhost:4567/press", function (press) {
+	          $.get("http://sunshinenights.com/press", function (press) {
 	            press.forEach(function (post) {
 	              posts.push(post);
 	            });
 	            console.log("press");
-	            $.get("http://localhost:4567/videos", function (videos) {
+	            $.get("http://sunshinenights.com/videos", function (videos) {
 	              videos.forEach(function (post) {
 	                posts.push(post);
 	              });
 	              console.log("videos");
-	              $.get("http://localhost:4567/contact", function (contact) {
+	              $.get("http://sunshinenights.com/contact", function (contact) {
 	                contact.forEach(function (post) {
 	                  posts.push(post);
 	                });
 	                console.log("contact");
-	                $.get("http://localhost:4567/pics", function (data) {
+	                $.get("http://sunshinenights.com/pics", function (data) {
 	                  pics = data;
 	                  console.log("pics");
 	                  that.stateSetter({ pics: pics, posts: posts });

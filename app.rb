@@ -11,23 +11,30 @@ require 'active_record'
 require 'bcrypt'
 include FileUtils::Verbose
 enable :sessions
-
+set :public_folder, './public'
 #landing page for user
 get '/' do
-		pics = Pic.where("carousel = ?", 1)
-
-	erb :index, locals: {pics: pics.length}
+	puts '/'
+	send_file File.join(settings.public_folder, 'index.html')
+end
+get '/public/bundle.js' do
+	puts 'public'
+	send_file File.join(settings.public_folder, 'bundle.js')
 end
 
 #respond to ajax for carousel
 get '/pics' do
+	headers 'Access-Control-Allow-Origin' => '*'
+	headers 'Access-Control-Allow-Methods' => 'GET'
 	content_type :json
-	pics = Pic.where("carousel = ?", 1)
+	pics = Pic.order(:carousel)
 	pics.to_json
 end
 
 #news ajax
 get '/news' do
+	headers 'Access-Control-Allow-Origin' => '*'
+	headers 'Access-Control-Allow-Methods' => 'GET'
 	content_type :json
 	news = Post.where("section = ?", "news").reverse_order
 	news.to_json
@@ -35,6 +42,8 @@ end
 
 #shows ajax
 get '/shows' do
+	headers 'Access-Control-Allow-Origin' => '*'
+	headers 'Access-Control-Allow-Methods' => 'GET'	
 	content_type :json
 	shows = Post.where("section = ? AND eventdate > ?", "shows", Time.now).order(:eventdate)
 	shows.to_json
@@ -42,6 +51,8 @@ end
 
 #press ajax
 get '/press' do
+	headers 'Access-Control-Allow-Origin' => '*'
+	headers 'Access-Control-Allow-Methods' => 'GET'	
 	content_type :json
 	press = Post.where("section = ?", "press").reverse_order
 	press.to_json
@@ -49,6 +60,8 @@ end
 
 #video ajax
 get '/videos' do
+	headers 'Access-Control-Allow-Origin' => '*'
+	headers 'Access-Control-Allow-Methods' => 'GET'
 	content_type :json
 	video = Post.where("section = ?", "videos").reverse_order
 	video.to_json
@@ -56,6 +69,8 @@ end
 
 #contact ajax
 get '/contact' do
+	headers 'Access-Control-Allow-Origin' => '*'
+	headers 'Access-Control-Allow-Methods' => 'GET'	
 	content_type :json
 	contact = Post.where("section = ?", "contact").reverse_order
 	contact.to_json
@@ -103,7 +118,7 @@ get '/admin/pics' do
 	puts session[:valid_user]
 	if authenticated?
 		puts "GET ADMIN/PICS"
-		pics = Pic.all()
+		pics = Pic.order(:carousel)
 		erb :"admin/pics", locals: {pics: pics}
 	else
 		redirect '/admin/login'
@@ -116,7 +131,7 @@ post '/admin/pic' do
 		puts "POST ADMIN/PIC"
 
 		if params[:carousel_selection]
-			car = 1
+			car = params[:carousel_selection]
 		else car = 0
 		end
 		tempfile = params[:file][:tempfile] 
@@ -132,33 +147,32 @@ end
 # update carousel status of each pic
 put '/admin/pics' do
 	if authenticated?
-		checked_string = params.keys[0].split(',')
-		checked = []
-		checked_string.each do |id| 
-			checked<<id.to_i
-		end
-		puts checked
-		pics = Pic.all()
-		pics.each do |pic|
-			x = 0
-			while x < checked.length do
-				if pic.id == checked[x]
-					puts "in if: pic id = #{pic.id}, x = #{x}"
-					pic.update(carousel: 1)
-					x = checked.length
-				else 
-					puts "in else: pic id = #{pic.id}, x = #{x}"
-					pic.update(carousel: 0)
-					x += 1
-				end
+		newpics = JSON.parse(params[:pics])
+
+		
+		newpics.each do |newpic|
+			
+			puts "XXXXX"
+			puts newpic
+			pic = Pic.find_by(id: newpic["id"])
+			pic.update(carousel: newpic["carousel"])
 			end
-		end
+		
 		redirect '/admin/pics'
 	else
 		redirect '/admin/login'
 	end
 end
 
+put '/admin/pic/:id' do
+	if authenticated?
+		pic = Pic.find_by(id: params[:id].to_i)
+		pic.update(carousel: params[:carousel])
+		redirect '/admin/pics'
+	else
+		redirect '/admin/login'
+	end
+end
 # show an individual pic
 get '/admin/pic/:id' do
 	if authenticated?

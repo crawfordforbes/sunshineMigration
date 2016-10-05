@@ -21,7 +21,11 @@ get '/public/bundle.js' do
 	puts 'public'
 	send_file File.join(settings.public_folder, 'bundle.js')
 end
-
+#press page
+get '/press.html'
+	puts '/press.html'
+	send_file File.join(settings.public_folder, 'press.html')
+end
 #respond to ajax for carousel
 get '/pics' do
 	headers 'Access-Control-Allow-Origin' => '*'
